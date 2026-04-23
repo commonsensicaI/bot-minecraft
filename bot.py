@@ -62,7 +62,9 @@ async def start(ctx):
         await ctx.send("Contact Emma, she screwed up")
         return
 
-    ssh.exec_command("bash /home/emma/minecraft-server/start.sh")
+    ssh.exec_command(
+        "nohup bash /home/emma/minecraft-server/start.sh > /home/emma/minecraft-server/logs/bot.log 2>&1 &"
+    )
     await ctx.send("Serveur lancé !")
 
 
