@@ -141,8 +141,8 @@ async def shutdown(ctx):
     """Shutdown the Minecraft server"""
     await ctx.send("Shutting down the server...")
     await ensure_ssh_connection(ctx)
-    ssh.exec_command("shutdown now")
-    await ctx.send("Minecraft server stopped!")
+    ssh.exec_command("sudo shutdown now")
+    await ctx.send("Minecraft server totally stopped!")
 
 
 bot.run(os.getenv("TOKEN"))  # always at the end
