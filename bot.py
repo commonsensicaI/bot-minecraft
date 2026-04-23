@@ -76,7 +76,7 @@ async def ping(ctx):
 
 @bot.event
 async def on_ready():
-    print("Le bot est prêt !")
+    print("The bot is ready!")
 
 
 @bot.command()
@@ -134,6 +134,15 @@ async def status(ctx):
             await ctx.send("The Minecraft server is not running.")
     except:
         await ctx.send("An error occurred while getting the server status.")
+
+
+@bot.command()
+async def shutdown(ctx):
+    """Shutdown the Minecraft server"""
+    await ctx.send("Shutting down the server...")
+    await ensure_ssh_connection(ctx)
+    ssh.exec_command("shutdown now")
+    await ctx.send("Minecraft server stopped!")
 
 
 bot.run(os.getenv("TOKEN"))  # always at the end
