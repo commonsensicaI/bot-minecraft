@@ -36,10 +36,13 @@ async def start(ctx):
     await ctx.send("Démarrage du serveur...")
     connecte = False
     try:
-        ssh.connect("192.168.1.201", username="emma", key_filename="")
+        ssh.connect(
+            "192.168.1.201", username="emma", key_filename="/home/emma/.ssh/id_ed25519"
+        )
         connecte = True
-    except:
-        await ctx.send("Serveur éteint, il va s'allumer")
+    except Exception as e:
+        await ctx.send(f"Erreur SSH : {e}")
+        await ctx.send("Serveur éteint il va s'allumer")
 
     if connecte:
         stdin, stdout, stderr = ssh.exec_command("pgrep java")
@@ -51,7 +54,9 @@ async def start(ctx):
     send_magic_packet("58:11:22:cd:d5:c5")
     await asyncio.sleep(60)
     try:
-        ssh.connect("192.168.1.201", username="emma", key_filename="")
+        ssh.connect(
+            "192.168.1.201", username="emma", key_filename="/home/emma/.ssh/id_ed25519"
+        )
     except:
         await ctx.send("Contact Emma, she screwed up")
         return
