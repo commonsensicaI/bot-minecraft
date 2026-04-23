@@ -28,7 +28,7 @@ async def on_ready():
 
 @bot.command()
 async def start(ctx):
-    await ctx.send("Démarrage du serveur...")
+    await ctx.send("Starting the server...")
 
     # Essai connexion SSH
     try:
@@ -37,7 +37,7 @@ async def start(ctx):
         )
     except:
         # Serveur éteint, on réveille
-        await ctx.send("Serveur éteint, envoi du WakeOnLan...")
+        await ctx.send("Server shut down, sending WakeOnLan...")
         send_magic_packet("58:11:22:cd:d5:c5")
         await asyncio.sleep(60)
         try:
@@ -47,21 +47,21 @@ async def start(ctx):
                 key_filename="/home/emma/.ssh/id_ed25519",
             )
         except:
-            await ctx.send("Le serveur répond pas après 60s, contacte Emma")
+            await ctx.send("The server doesn't respond after 60 seconds, contact Emma")
             return
 
     # Ici on est connecté dans tous les cas
     stdin, stdout, stderr = ssh.exec_command("pgrep java")
     output = stdout.read().decode().strip()
     if output:
-        await ctx.send("Le serveur Minecraft est déjà lancé !")
+        await ctx.send("The Minecraft server is already up and running!")
         return
 
     # Java tourne pas, on lance
     ssh.exec_command(
-        "nohup bash /home/emma/minecraft-server/start.sh > /home/emma/minecraft-server/logs/bot.log 2>&1 &"
+        "cd /home/emma/minecraft-server && nohup bash start.sh > logs/bot.log 2>&1 &"
     )
-    await ctx.send("Serveur Minecraft lancé !")
+    await ctx.send("Minecraft server launched!")
 
 
 bot.run(os.getenv("TOKEN"))  # toujours tout à la fin
