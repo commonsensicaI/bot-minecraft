@@ -27,45 +27,41 @@ async def on_ready():
 
 
 @bot.command()
-async def ping(ctx):
-    await ctx.send("Pong!")
-
-
-@bot.command()
 async def start(ctx):
     await ctx.send("Démarrage du serveur...")
-    connecte = False
-    try:
-        ssh.connect(
-            "192.168.1.201", username="emma", key_filename="/home/emma/.ssh/id_ed25519"
-        )
-        connecte = True
-    except Exception as e:
-        print(f"Erreur SSH : {e}")
-        await ctx.send(f"Erreur SSH : {e}")
-        await ctx.send("Serveur éteint il va s'allumer")
 
-    if connecte:
-        stdin, stdout, stderr = ssh.exec_command("pgrep java")
-        output = stdout.read().decode().strip()
-        if output:  # si y'a un PID c'est que java tourne
-            await ctx.send("Le serveur est déjà lancé !")
-            return
-
-    send_magic_packet("58:11:22:cd:d5:c5")
-    await asyncio.sleep(60)
+    # Essai connexion SSH
     try:
         ssh.connect(
             "192.168.1.201", username="emma", key_filename="/home/emma/.ssh/id_ed25519"
         )
     except:
-        await ctx.send("Contact Emma, she screwed up")
+        # Serveur éteint, on réveille
+        await ctx.send("Serveur éteint, envoi du WakeOnLan...")
+        send_magic_packet("58:11:22:cd:d5:c5")
+        await asyncio.sleep(60)
+        try:
+            ssh.connect(
+                "192.168.1.201",
+                username="emma",
+                key_filename="/home/emma/.ssh/id_ed25519",
+            )
+        except:
+            await ctx.send("Le serveur répond pas après 60s, contacte Emma")
+            return
+
+    # Ici on est connecté dans tous les cas
+    stdin, stdout, stderr = ssh.exec_command("pgrep java")
+    output = stdout.read().decode().strip()
+    if output:
+        await ctx.send("Le serveur Minecraft est déjà lancé !")
         return
 
+    # Java tourne pas, on lance
     ssh.exec_command(
         "nohup bash /home/emma/minecraft-server/start.sh > /home/emma/minecraft-server/logs/bot.log 2>&1 &"
     )
-    await ctx.send("Serveur lancé !")
+    await ctx.send("Serveur Minecraft lancé !")
 
 
 bot.run(os.getenv("TOKEN"))  # toujours tout à la fin
