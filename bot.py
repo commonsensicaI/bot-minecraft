@@ -21,6 +21,11 @@ ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong!")
+
+
 @bot.event
 async def on_ready():
     print("Le bot est prêt !")
@@ -59,9 +64,16 @@ async def start(ctx):
 
     # Java tourne pas, on lance
     ssh.exec_command(
-        "cd /home/emma/minecraft-server && nohup bash start.sh > logs/bot.log 2>&1 &"
+        "cd /home/emma/minecraft-server && screen -dmS minecraft bash start.sh"
     )
     await ctx.send("Minecraft server launched!")
+
+
+@bot.command()
+async def stop(ctx):
+    await ctx.send("Stopping the server...")
+    ssh.exec_command('screen -S minecraft -X stuff "stop\n"')
+    await ctx.send("Minecraft server stopped!")
 
 
 bot.run(os.getenv("TOKEN"))  # toujours tout à la fin
