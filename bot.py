@@ -41,6 +41,7 @@ async def start(ctx):
         )
         connecte = True
     except Exception as e:
+        print(f"Erreur SSH : {e}")
         await ctx.send(f"Erreur SSH : {e}")
         await ctx.send("Serveur éteint il va s'allumer")
 
