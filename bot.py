@@ -1,13 +1,8 @@
 import asyncio
 import os
-import re
-import subprocess
-import time
-from tokenize import Name
 
 import discord
 import paramiko
-import psutil
 from discord.ext import commands
 from dotenv import load_dotenv
 from wakeonlan import send_magic_packet
@@ -113,6 +108,7 @@ async def start(ctx):
 async def stop(ctx):
     """Stop the Minecraft server"""
     await ctx.send("Stopping the server...")
+    await ensure_ssh_connection(ctx)
     ssh.exec_command('screen -S minecraft -X stuff "stop\n"')
     await ctx.send("Minecraft server stopped!")
 
@@ -143,6 +139,32 @@ async def shutdown(ctx):
     await ensure_ssh_connection(ctx)
     ssh.exec_command("sudo shutdown now")
     await ctx.send("Minecraft server totally stopped!")
+
+
+@bot.command()
+async def badguy(ctx, user_id: int = None):
+    """[Admin] Bannir un utilisateur des commandes du bot. Usage: !badguy <user_id>"""
+    if not is_admin(ctx):
+        await ctx.send("❌ Tu n'as pas la permission d'utiliser cette commande.")
+        return
+    if user_id is None:
+        await ctx.send("Usage: `!badguy <user_id>`")
+        return
+    banned_users.add(user_id)
+    await ctx.send(f"<@{user_id}> you're the bad guy 😈")
+
+
+@bot.command()
+async def goodguy(ctx, user_id: int = None):
+    """[Admin] Réactiver les commandes pour un utilisateur. Usage: !goodguy <user_id>"""
+    if not is_admin(ctx):
+        await ctx.send("❌ Tu n'as pas la permission d'utiliser cette commande.")
+        return
+    if user_id is None:
+        await ctx.send("Usage: `!goodguy <user_id>`")
+        return
+    banned_users.discard(user_id)
+    await ctx.send(f"<@{user_id}> est réhabilité ✅")
 
 
 bot.run(os.getenv("TOKEN"))  # always at the end
